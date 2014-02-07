@@ -1,0 +1,149 @@
+<!doctype <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Calculator</title>
+    <link rel="stylesheet" href="main.css">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <!--[if IE]>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body id="home"class="body">
+<ul id="answerslist">
+</ul>
+<div id="calc">
+	<input id="display" disabled>
+	<div id="foldbutton">H</div>
+
+	<div class="row" style="top:52px">
+		<a href="#" class="calcbutton">(</a>
+		<a href="#" class="calcbutton">)</a>
+		<a href="#" class="calcbutton">&#8730;</a>
+		<a href="#" class="specialbutton" id="clear">CE</a>
+	</div>
+
+	<div class="row" style="top:104px">
+		<a href="#" class="calcbutton">7</a>
+		<a href="#" class="calcbutton">8</a>
+		<a href="#" class="calcbutton">9</a>
+		<a href="#" class="calcbutton">&times;</a>
+	</div>
+	<div class="row" style="top:156px">
+		<a href="#" class="calcbutton">4</a>
+		<a href="#" class="calcbutton">5</a>
+		<a href="#" class="calcbutton">6</a>
+		<a href="#" class="calcbutton">-</a>
+	</div>
+	<div class="row" style="top:208px">
+		<a href="#" class="calcbutton">1</a>
+		<a href="#" class="calcbutton">2</a>
+		<a href="#" class="calcbutton">3</a>
+		<a href="#" class="calcbutton">+</a>
+	</div>
+	<div class="row" style="top:260px">
+		<a href="#" class="calcbutton">0</a>
+		<a href="#" class="calcbutton">.</a>
+		<a href="#" class="specialbutton" id="equals">=</a>
+		<a href="#" class="calcbutton">/</a>
+	</div>
+</div>
+
+<style type="text/css"></style>
+<script src="jquery.min.js"></script>
+<script src="jquery.hammer-full.min.js"></script>
+<script>
+$(document).ready(function(){
+	function calculate(){
+		text = $("#display").val();
+		text = text.replace("√", "Math.sqrt");
+		text = text.replace("×", "*");
+		try {
+			text = eval(text);
+			if (isNaN(text)){
+				text = "Syntax Error: please try again!";
+			}
+			else {
+				answers.push(text);
+				var element = '<li class="answeritem"><span>' + text + '</span><span class="closebutton">×</span></li>';
+				$('#answerslist').append(element);
+			}
+			$('#display').val(text);
+		}
+		catch(e){
+			console.log(e);
+			$('#display').val("Syntax Error!");
+		}
+		console.log(text);
+	}
+
+	function update(value){
+		$("#display").val($('#display').val() + value);
+		if(value == '√'){
+			$("#display").val($('#display').val() + '(');
+		}
+	}
+
+	$(document).keypress(function(event){
+		if (event.keyCode >= 48 && event.keyCode <=58){
+			update((event.keyCode - 48).toString());
+		}
+		else if (event.keyCode == 13){
+			calculate();
+		}
+		else if(event.keyCode == 43){
+			update('+');
+		}
+		else if(event.keyCode == 45){
+			update('-');
+		}
+		else if(event.keyCode == 47){
+			update('/');
+		}
+		else if(event.keyCode == 42){
+			update('×');
+		}
+		else if(event.keyCode == 40){
+			update('(');
+		}
+		else if(event.keyCode == 41){
+			update(')');
+		}
+	});
+	$('html').keydown(function(event){
+		if (event.keyCode == 8){
+			event.preventDefault();
+			text = '';
+			for (var i = 0; i < $('#display').val().toString().length - 1; i++){
+				text += $("#display").val().toString()[i];
+			}
+			$('#display').val(text);
+		}
+	});
+
+	var answers = new Array();
+	hammerobj = $('body').hammer();
+	hammerobj.on("touch", ".calcbutton", function(event) {
+		update(this.innerHTML);
+    });
+    hammerobj.on("touch", "#equals", calculate);
+    hammerobj.on("touch", "#clear", function(event){
+    	$('#display').val('');
+    });
+    hammerobj.on("touch", "#foldbutton", function(event){
+    	$("#answerslist").slideToggle();
+    });
+    hammerobj.on("touch", ".answeritem", function(event){
+    	if (event.target.className == 'closebutton'){
+    		this.remove();
+    	}
+    	else {
+	    	$("#display").val($('#display').val() + this.children[0].innerHTML);
+    	}
+    })
+    $('#answerslist').hide();
+});
+</script>
+</body>
+</html>
